@@ -2,8 +2,8 @@ import { useState, useRef } from 'react';
 import { generateImage, editImage } from '../utils/image';
 import { generateContent } from '../utils/ai';
 import { useSettings } from '../context/SettingsContext';
-import { Loader2, Image as ImageIcon, Upload, Key, Edit3, LayoutTemplate } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Loader2, Image as ImageIcon, Upload, Key, Edit3, LayoutTemplate, Download } from 'lucide-react';
+import MarkdownViewer from '../components/MarkdownViewer';
 
 export default function UIGenerator() {
   const { settings } = useSettings();
@@ -47,6 +47,10 @@ export default function UIGenerator() {
         finalPrompt = `A clean, low-fidelity UI wireframe mockup of ${prompt}. Black and white, simple lines, minimalist, structural layout.`;
       } else if (style === 'mockup') {
         finalPrompt = `A high-fidelity UI mockup of ${prompt}. Modern, clean, dribbble style, beautiful UI/UX, vibrant colors.`;
+      } else if (style === 'logo') {
+        finalPrompt = `A professional, modern logo design for ${prompt}. Clean vector style, flat design, isolated on white background.`;
+      } else if (style === 'asset') {
+        finalPrompt = `A beautiful brand illustration or graphic asset for ${prompt}. Modern corporate memphis or flat vector style, vibrant colors.`;
       }
       const img = await generateImage(finalPrompt, size, aspectRatio, tier);
       setImage(img);
@@ -150,6 +154,8 @@ export default function UIGenerator() {
                   <select value={style} onChange={(e) => setStyle(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-zinc-200 outline-none">
                     <option value="wireframe">Low-Fidelity Wireframe</option>
                     <option value="mockup">High-Fidelity Mockup</option>
+                    <option value="logo">Logo Design</option>
+                    <option value="asset">Brand Asset / Illustration</option>
                     <option value="custom">Custom (Use prompt as is)</option>
                   </select>
                 </div>
@@ -228,8 +234,8 @@ export default function UIGenerator() {
       <div className="flex-1 bg-zinc-50 h-full overflow-y-auto p-8 flex flex-col items-center justify-center">
         {mode === 'brand' ? (
           brandOutput ? (
-            <div className="w-full max-w-3xl bg-white p-10 rounded-2xl shadow-sm border border-zinc-100 prose prose-zinc max-w-none">
-              <ReactMarkdown>{brandOutput}</ReactMarkdown>
+            <div className="w-full max-w-3xl h-full">
+              <MarkdownViewer content={brandOutput} title="Brand Guidelines" />
             </div>
           ) : (
             <div className="text-zinc-400 text-center">
@@ -239,7 +245,21 @@ export default function UIGenerator() {
           )
         ) : (
           image ? (
-            <img src={image} alt="Generated" className="max-w-full max-h-full rounded-2xl shadow-md object-contain" />
+            <div className="relative group max-w-full max-h-full flex items-center justify-center">
+              <img src={image} alt="Generated" className="max-w-full max-h-full rounded-2xl shadow-md object-contain" />
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = image;
+                  link.download = 'generated-image.png';
+                  link.click();
+                }}
+                className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur border border-zinc-200 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white text-zinc-700 hover:text-indigo-600"
+                title="Download Image"
+              >
+                <Download className="h-5 w-5" />
+              </button>
+            </div>
           ) : (
             <div className="text-zinc-400 text-center">
               <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-20" />

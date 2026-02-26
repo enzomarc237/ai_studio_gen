@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { generateContent } from '../utils/ai';
 import { Loader2, Lightbulb, Plus, Trash2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownViewer from '../components/MarkdownViewer';
 
 export default function Brainstorm() {
   const { settings } = useSettings();
@@ -71,12 +71,12 @@ export default function Brainstorm() {
             <div key={idea.id} className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-100 relative group">
               <button
                 onClick={() => removeIdea(idea.id)}
-                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-20"
               >
                 <Trash2 className="h-5 w-5" />
               </button>
-              <div className="prose prose-zinc max-w-none pr-12">
-                <ReactMarkdown>{idea.content}</ReactMarkdown>
+              <div className="pr-12">
+                <MarkdownViewer content={idea.content} title="Brainstorming Ideas" />
               </div>
             </div>
           ))

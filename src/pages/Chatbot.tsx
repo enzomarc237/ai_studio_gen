@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { generateContent } from '../utils/ai';
 import { Loader2, Send, Bot, User, Upload, Image as ImageIcon } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownViewer from '../components/MarkdownViewer';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 interface Message {
@@ -117,8 +117,12 @@ export default function Chatbot() {
                     {msg.image && (
                       <img src={msg.image} alt="Uploaded" className="max-w-xs rounded-lg mb-3" />
                     )}
-                    <div className={`prose ${msg.role === 'user' ? 'prose-invert' : 'prose-zinc'} max-w-none text-sm`}>
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <div className={`w-full ${msg.role === 'user' ? 'text-white' : 'text-zinc-900'} text-sm`}>
+                      {msg.role === 'user' ? (
+                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                      ) : (
+                        <MarkdownViewer content={msg.content} title={`Chat Message ${msg.id}`} innerClassName="p-0 bg-transparent border-none" />
+                      )}
                     </div>
                   </div>
                 </div>

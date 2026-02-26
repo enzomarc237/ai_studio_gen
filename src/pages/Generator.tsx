@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { generateContent } from '../utils/ai';
-import { Loader2, Download, Save, FileText, CheckCircle2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
-import jsPDF from 'jspdf';
+import { Loader2, Save, FileText, CheckCircle2 } from 'lucide-react';
+import MarkdownViewer from '../components/MarkdownViewer';
 
 export default function Generator() {
   const [searchParams] = useSearchParams();
@@ -81,29 +78,6 @@ export default function Generator() {
     }
   };
 
-  const exportMarkdown = () => {
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-    saveAs(blob, `${title}.md`);
-  };
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    const lines = doc.splitTextToSize(content.replace(/#/g, ''), 180);
-    doc.text(lines, 10, 10);
-    doc.save(`${title}.pdf`);
-  };
-
-  const exportDOCX = async () => {
-    const doc = new Document({
-      sections: [{
-        properties: {},
-        children: content.split('\\n').map(line => new Paragraph({ children: [new TextRun(line)] })),
-      }],
-    });
-    const blob = await Packer.toBlob(doc);
-    saveAs(blob, `${title}.docx`);
-  };
-
   return (
     <div className="flex h-full">
       {/* Left Panel: Input */}
@@ -161,23 +135,12 @@ export default function Generator() {
               {saving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Save
             </button>
-            <div className="relative group">
-              <button disabled={!content} className="bg-zinc-100 text-zinc-900 px-4 py-2 rounded-lg flex items-center hover:bg-zinc-200 transition-colors font-medium disabled:opacity-50">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-zinc-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
-                <button onClick={exportMarkdown} className="w-full text-left px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 hover:text-indigo-600 rounded-t-xl">Markdown (.md)</button>
-                <button onClick={exportPDF} className="w-full text-left px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 hover:text-indigo-600">PDF (.pdf)</button>
-                <button onClick={exportDOCX} className="w-full text-left px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 hover:text-indigo-600 rounded-b-xl">Word (.docx)</button>
-              </div>
-            </div>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-8">
           {content ? (
-            <div className="max-w-3xl mx-auto bg-white p-10 rounded-2xl shadow-sm border border-zinc-100 prose prose-zinc max-w-none">
-              <ReactMarkdown>{content}</ReactMarkdown>
+            <div className="max-w-3xl mx-auto h-full">
+              <MarkdownViewer content={content} title={title} />
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-zinc-400">
